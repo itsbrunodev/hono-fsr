@@ -23,7 +23,7 @@
     "jsxImportSource": "hono/jsx",
     "outDir": "dist",
     "declaration": true,
-    "composite": true,
+    "incremental": false,
     "rootDir": ".",
     "baseUrl": ".",
     "paths": {
