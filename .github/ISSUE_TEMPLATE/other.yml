@@ -1,0 +1,20 @@
+name: "Other"
+description: "File a miscellaneous issue or request"
+title: "[other] - "
+labels: ["miscellaneous"]
+body:
+  - type: markdown
+    attributes:
+      value: "# Other Issue"
+  - type: textarea
+    id: description
+    attributes:
+      label: "What is this issue about?"
+      description: "Describe the issue, question, or request in detail."
+    validations:
+      required: true
+  - type: textarea
+    id: additional_info
+    attributes:
+      label: "Additional Information"
+      description: "Provide any extra details, context, or examples related to your issue."

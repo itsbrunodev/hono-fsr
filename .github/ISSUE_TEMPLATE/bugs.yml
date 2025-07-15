@@ -1,0 +1,27 @@
+name: "Bug Report"
+description: "Report an issue in the codebase"
+title: "[bug] - "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: "# Bug Report"
+  - type: textarea
+    id: description
+    attributes:
+      label: "What bug did you find?"
+      description: "Explain the issue in detail. Attach screenshots as necessary."
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: "Steps to Reproduce"
+      description: "Provide a clear step-by-step guide to reproduce the issue."
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: "Environment Details"
+      description: "Mention the browser/OS, device, or relevant context."
