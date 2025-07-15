@@ -70,9 +70,14 @@ export function transformPathToRoute(
 
 	const relativePath = path.relative(rootDir, filePath);
 	const baseName = path.basename(relativePath, ext);
-	const dirName = path.dirname(relativePath);
 
-	const isMiddleware = baseName === "_middleware";
+	// ignore files that start with an underscore
+	if (baseName.startsWith("_")) {
+		return null;
+	}
+
+	const dirName = path.dirname(relativePath);
+	const isMiddleware = baseName === "+middleware";
 
 	let urlPath: string;
 
@@ -86,10 +91,8 @@ export function transformPathToRoute(
 		urlPath = `/${pathSegments.join("/")}`;
 	}
 
-	if (!isMiddleware) {
-		if (baseName !== "index") {
-			urlPath = path.join(urlPath, baseName);
-		}
+	if (!isMiddleware && baseName !== "index") {
+		urlPath = path.join(urlPath, baseName);
 	}
 
 	urlPath = urlPath

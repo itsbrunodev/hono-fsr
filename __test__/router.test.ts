@@ -92,14 +92,20 @@ describe("hono-fsr", () => {
 		const app = new Hono();
 		await createRouter(app, { root: routesDir });
 
-		// Test case 1: Request WITHOUT the parameter
 		const res1 = await app.request("/optional");
 		expect(res1.status).toBe(200);
 		expect(await res1.json()).toEqual({ hasId: false });
 
-		// Test case 2: Request WITH the parameter
 		const res2 = await app.request("/optional/456");
 		expect(res2.status).toBe(200);
 		expect(await res2.json()).toEqual({ hasId: true, id: "456" });
+	});
+
+	test("should ignore files starting with an underscore", async () => {
+		const app = new Hono();
+		await createRouter(app, { root: routesDir });
+
+		const res = await app.request("/_ignored-route");
+		expect(res.status).toBe(404);
 	});
 });
