@@ -6,7 +6,8 @@
 		"useIgnoreFile": false
 	},
 	"files": {
-		"ignoreUnknown": false
+		"ignoreUnknown": false,
+		"includes": ["lib/**/*.ts", "test/**/*.ts"]
 	},
 	"formatter": {
 		"enabled": true,
@@ -30,7 +31,12 @@
 		"enabled": true,
 		"actions": {
 			"source": {
-				"organizeImports": "on"
+				"organizeImports": {
+					"level": "on",
+					"options": {
+						"groups": [":NODE:", ":PACKAGE:", ["/**"], ":PATH:"]
+					}
+				}
 			}
 		}
 	}
