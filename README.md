@@ -104,7 +104,8 @@ hono-fsr uses a simple and powerful file-naming convention.
 | `[[id]].ts`        | `/:id?`      | `routes/optional/[[id]].ts` → `/optional/:id?`              |
 | `[...path].ts`     | `/*`         | `routes/files/[...path].ts` → `/files/*`                    |
 | `(group)/about.ts` | `/about`     | `routes/(marketing)/about.ts` → `/about`                    |
-| `_middleware.ts`   | (Middleware) | Applies to all routes in its directory and sub-directories. |
+| `+middleware.ts`   | (Middleware) | Applies to all routes in its directory and sub-directories. |
+| `_filename.ts`     | (Ignored)    | Files that start with an underscore are ignored.            |
 
 ## Configuration
 
