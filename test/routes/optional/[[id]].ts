@@ -1,5 +1,4 @@
 import type { Context } from "hono";
-
 import { createRoute } from "@/index";
 
 export const GET = createRoute((c: Context) => {

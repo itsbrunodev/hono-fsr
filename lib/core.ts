@@ -1,9 +1,9 @@
-import type { Hono } from "hono";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { glob } from "glob";
 import chalk from "chalk";
-
+import { glob } from "glob";
+import type { Hono } from "hono";
+import { logger } from "./logger";
 import {
 	type DiscoveredRoute,
 	type HonoFsrOptions,
@@ -13,7 +13,6 @@ import {
 	VALID_METHODS,
 } from "./types";
 import { joinUrl, transformPathToRoute } from "./utils";
-import { logger } from "./logger";
 
 async function discoverAndSortRoutes(root: string): Promise<DiscoveredRoute[]> {
 	const rootDir = path.resolve(process.cwd(), root);
