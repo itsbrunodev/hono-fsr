@@ -129,6 +129,12 @@ createRouter(app, {
 });
 ```
 
+## Alternatives
+
+For projects that require tight integration between a frontend (React) and backend, or a full-stack experience, consider using [honox](https://github.com/honojs/honox). It is a full meta-framework that also supports file-system routing and server-side rendering with React.
+
+hono-fsr is a powerful and lean server-side routing layer. Its sole focus is to provide a robust, convention-driven foundation for organizing your application's endpoints. It remains completely unopinionated about what your handlers return, be it JSON for an API, or HTML from Hono's built-in JSX renderer for a server-rendered site.
+
 ## Documentation
 
 This README provides a quickstart and reference for the main features. For detailed guides on all conventions, configuration options, and advanced topics, please visit the [Wiki](https://github.com/itsbrunodev/hono-fsr/wiki).
