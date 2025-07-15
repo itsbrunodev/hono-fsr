@@ -1,0 +1,38 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "allowJs": false,
+    "lib": ["ESNext", "DOM"],
+    "module": "esnext",
+    "target": "ESNext",
+    "checkJs": false,
+    "moduleResolution": "bundler",
+    "strictBindCallApply": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "strictFunctionTypes": true,
+    "resolveJsonModule": true,
+    "strictNullChecks": true,
+    "noImplicitThis": true,
+    "noImplicitAny": true,
+    "alwaysStrict": true,
+    "jsx": "react-jsx",
+    "verbatimModuleSyntax": true,
+    "types": ["node"],
+    "jsxImportSource": "hono/jsx",
+    "outDir": "dist",
+    "declaration": true,
+    "composite": true,
+    "rootDir": ".",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["*"]
+    }
+  },
+  "tsc-alias": {
+    "resolveFullPaths": true
+  },
+  "include": ["./**/*.ts"],
+  "exclude": ["node_modules", "dist"]
+}

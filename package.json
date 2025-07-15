@@ -1,0 +1,57 @@
+{
+	"name": "hono-fsr",
+	"description": "File-system router for the Hono web framework.",
+	"keywords": [
+		"hono",
+		"router",
+		"file-system",
+		"file-system-routing",
+		"fs-router",
+		"web",
+		"framework",
+		"server",
+		"backend",
+		"api"
+	],
+	"license": "MIT",
+	"type": "module",
+	"version": "1.0.0-alpha",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"files": [
+		"dist"
+	],
+	"homepage": "https://github.com/itsbrunodev/hono-fsr#readme",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/itsbrunodev/hono-fsr.git"
+	},
+	"bugs": "https://github.com/itsbrunodev/hono-fsr/issues",
+	"scripts": {
+		"build": "tsc -b && tsc-alias -p tsconfig.json",
+		"start": "node dist/index.js",
+		"test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
+		"lint": "biome check ."
+	},
+	"dependencies": {
+		"chalk": "^5.4.1",
+		"glob": "^11.0.3"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.1.1",
+		"@jest/globals": "^30.0.4",
+		"@types/jest": "^30.0.0",
+		"@types/node": "^24.0.13",
+		"cross-env": "^7.0.3",
+		"hono": "^4.7.11",
+		"jest": "^30.0.4",
+		"ts-jest": "^29.4.0",
+		"ts-node": "^10.9.2",
+		"tsc-alias": "^1.8.16",
+		"tsx": "^4.20.3",
+		"vite": "^7.0.4"
+	},
+	"peerDependencies": {
+		"hono": ">=4"
+	}
+}
