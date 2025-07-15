@@ -1,6 +1,3 @@
-> [!NOTE]
-> This package is currently in an alpha stage. While the core functionality is in place, the API may be subject to breaking changes as it matures. Please use with caution and feel free to report any issues.
-
 # hono-fsr
 
 File-system router for the [Hono](https://hono.dev/) web framework.
