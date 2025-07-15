@@ -15,11 +15,13 @@
 	],
 	"license": "MIT",
 	"type": "module",
-	"version": "1.0.0-alpha.2",
+	"version": "1.0.0-alpha.3",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"files": [
-		"dist"
+		"dist/lib",
+		"dist/index.js",
+		"dist/index.d.ts"
 	],
 	"homepage": "https://github.com/itsbrunodev/hono-fsr#readme",
 	"repository": {
