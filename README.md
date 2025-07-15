@@ -32,7 +32,7 @@ bun add hono-fsr
 
 Create a `routes` directory and start adding your endpoint files. The file and folder names will map directly to your URL structure.
 
-#### `routes/index.ts`
+#### `/routes/index.ts`
 
 ```typescript
 import { createRoute } from "hono-fsr";
@@ -42,7 +42,7 @@ export const GET = createRoute((c) => {
 });
 ```
 
-#### `routes/users/[id].ts`
+#### `/routes/users/[id].ts`
 
 ```typescript
 import { createRoute } from "hono-fsr";
@@ -63,7 +63,7 @@ export const GET = createRoute(
 
 In your main server file, import `createRouter` and connect it to your Hono app.
 
-#### `index.ts`
+#### `/index.ts`
 
 ```typescript
 import { Hono } from "hono";
@@ -128,6 +128,10 @@ createRouter(app, {
   trailingSlash: "never",
 });
 ```
+
+## Documentation
+
+This README provides a quickstart and reference for the main features. For detailed guides on all conventions, configuration options, and advanced topics, please visit the [Wiki](https://github.com/itsbrunodev/hono-fsr/wiki).
 
 ## License
 
