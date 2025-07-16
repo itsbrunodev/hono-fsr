@@ -1,24 +1,46 @@
+import fs from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import chalk from "chalk";
-import { glob } from "glob";
 import type { Hono } from "hono";
 import { logger } from "./logger";
 import {
 	type DiscoveredRoute,
 	type HonoFsrOptions,
 	type HttpMethod,
-	type ImportResult,
-	type SuccessResult,
 	VALID_METHODS,
 } from "./types";
 import { joinUrl, transformPathToRoute } from "./utils";
 
+async function findFilesRecursively(dir: string): Promise<string[]> {
+	try {
+		const entries = await fs.readdir(dir, { withFileTypes: true });
+
+		const files = await Promise.all(
+			entries.map((entry) => {
+				const fullPath = path.join(dir, entry.name);
+				const normalizedPath = fullPath.replace(/\\/g, "/");
+
+				return entry.isDirectory()
+					? findFilesRecursively(normalizedPath)
+					: normalizedPath;
+			}),
+		);
+
+		return files.flat();
+	} catch (err) {
+		if (err instanceof Error && "code" in err && err.code === "ENOENT") {
+			return [];
+		}
+
+		throw err;
+	}
+}
+
 async function discoverAndSortRoutes(root: string): Promise<DiscoveredRoute[]> {
 	const rootDir = path.resolve(process.cwd(), root);
-	const pattern = path.join(rootDir, "**", "*").replace(/\\/g, "/");
 
-	const files = await glob(pattern, { nodir: true });
+	const files = await findFilesRecursively(rootDir);
 
 	const routes: DiscoveredRoute[] = files
 		.map((file) => transformPathToRoute(rootDir, file))
@@ -42,7 +64,7 @@ function performRegistration(
 	// biome-ignore lint/suspicious/noExplicitAny: dynamic import
 	module: any,
 	basePath: string,
-	trailingSlash: HonoFsrOptions["trailingSlash"], // <-- NEW: Pass trailingSlash down
+	trailingSlash: HonoFsrOptions["trailingSlash"],
 	debug?: boolean,
 ): void {
 	const finalRoutePath = joinUrl(trailingSlash, basePath, route.urlPath);
@@ -137,37 +159,25 @@ export async function createRouter(
 
 	const sortedRoutes = await discoverAndSortRoutes(root);
 
-	const importPromises = sortedRoutes.map((route): Promise<ImportResult> => {
-		return import(pathToFileURL(route.filePath).href)
-			.then((module) => ({ status: "success", route, module }) as SuccessResult)
-			.catch((error: unknown) => ({ status: "error", route, error }));
-	});
+	const registrationPromises = sortedRoutes.map(async (route) => {
+		try {
+			const module = await import(pathToFileURL(route.filePath).href);
 
-	// wait for all modules to be imported concurrently.
-	const loadedRoutes = await Promise.all(importPromises);
+			performRegistration(app, route, module, basePath, trailingSlash, debug);
 
-	for (const result of loadedRoutes) {
-		if (result.status === "success") {
-			performRegistration(
-				app,
-				result.route,
-				result.module,
-				basePath,
-				trailingSlash,
-				debug,
-			);
-		} else {
-			logger.error(
-				`Failed to import or register route at ${result.route.filePath}`,
-			);
-			const error = result.error;
+			return { status: "fulfilled", route };
+		} catch (error) {
+			logger.error(`Failed to import or register route at ${route.filePath}`);
 			if (error instanceof Error) {
 				console.error(error.stack);
 			} else {
 				console.error(error);
 			}
+			return { status: "rejected", route, reason: error };
 		}
-	}
+	});
+
+	await Promise.allSettled(registrationPromises);
 
 	const elapsed = (performance.now() - start).toFixed(2);
 
