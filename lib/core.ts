@@ -6,8 +6,10 @@ import type { Hono } from "hono";
 import { logger } from "./logger";
 import {
 	type DiscoveredRoute,
+	type ErrorResult,
 	type HonoFsrOptions,
 	type HttpMethod,
+	type SuccessResult,
 	VALID_METHODS,
 } from "./types";
 import { joinUrl, transformPathToRoute } from "./utils";
@@ -165,15 +167,17 @@ export async function createRouter(
 
 			performRegistration(app, route, module, basePath, trailingSlash, debug);
 
-			return { status: "fulfilled", route };
+			return { status: "success", route } as SuccessResult;
 		} catch (error) {
 			logger.error(`Failed to import or register route at ${route.filePath}`);
+
 			if (error instanceof Error) {
 				console.error(error.stack);
 			} else {
 				console.error(error);
 			}
-			return { status: "rejected", route, reason: error };
+
+			return { status: "error", route, error } as ErrorResult;
 		}
 	});
 
