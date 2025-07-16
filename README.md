@@ -21,42 +21,49 @@ pnpm add hono-fsr
 bun add hono-fsr
 ```
 
-> hono-fsr is an _ESM-only package_.
+> hono-fsr is an **ESM-only** package.
 
 ## Usage
 
-### 1. Create Your Routes
+### Create Your Routes
 
 Create a `routes` directory and start adding your endpoint files. The file and folder names will map directly to your URL structure.
 
-#### `/routes/index.ts`
+#### Core Principles
 
-```typescript
-import { createRoute } from "hono-fsr";
+- **HTTP Methods**: To handle a specific HTTP method, export a constant with the method's name in all uppercase (e.g., `export const GET`, `export const POST`).
+- **Default Export**: For convenience, a default export will automatically be treated as a GET request.
+- **`createRoute()`**: All handlers must be wrapped in the createRoute function. This function can accept multiple arguments, including any Hono middleware (like `zValidator`) followed by your final handler function.
 
-export const GET = createRoute((c) => {
-  return c.text("Hello, World!");
-});
-```
-
-#### `/routes/users/[id].ts`
+#### Example
 
 ```typescript
 import { createRoute } from "hono-fsr";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 
-export const GET = createRoute(
-  zValidator("param", z.object({ id: z.string().regex(/^\d+$/) })),
-  (c) => {
-    // c.req.valid('param') is fully typed!
-    const { id } = c.req.valid("param");
-    return c.json({ userId: id });
-  }
-);
+// Default exports are treated as GET methods
+export default createRoute((c) => {
+  return c.json([
+    { id: 1, title: "First Post" },
+    { id: 2, title: "Second Post" },
+  ]);
+});
+
+const postSchema = z.object({
+  title: z.string().min(1),
+  body: z.string().min(1),
+});
+
+// POST method
+export const POST = createRoute(zValidator("json", postSchema), (c) => {
+  // c.req.valid("json") is now typed
+  const newPost = c.req.valid("json");
+  return c.json({ success: true, post: newPost }, 201);
+});
 ```
 
-### 2. Initialize the Router
+### Initialize the Router
 
 In your main server file, import `createRouter` and connect it to your Hono app.
 
@@ -65,6 +72,8 @@ In your main server file, import `createRouter` and connect it to your Hono app.
 ```typescript
 import { Hono } from "hono";
 import { serve } from "@hono/node-server";
+
+// The function required to initialize the router
 import { createRouter } from "hono-fsr";
 
 import path from "node:path";
@@ -73,19 +82,23 @@ import { fileURLToPath } from "node:url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = new Hono();
-const port = 3000;
 
-// initialize the router
+// Initializes the router at ./routes
 await createRouter(app, {
   root: path.join(__dirname, "routes"),
 });
 
-console.log(`Server is running on port ${port}. (http://localhost:${port})`);
-
-serve({
-  fetch: app.fetch,
-  port,
-});
+serve(
+  {
+    fetch: app.fetch,
+    port: 3000,
+  },
+  (info) => {
+    console.log(
+      `Server is running on port ${info.port}. (http://localhost:${info.port})`
+    );
+  }
+);
 ```
 
 ## Routing Conventions
