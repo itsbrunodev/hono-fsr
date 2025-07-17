@@ -15,17 +15,17 @@ import * as m9 from "./users/[id]";
 import * as m10 from "./files/[...path]";
 
 const app = new Hono()
-    .use("/*", ...[].concat(m0.default))
-    .use("/protected/*", ...[].concat(m1.default))
-    .get("/about", ...[].concat(m2.GET))
-    .get("/contact", ...[].concat(m3.GET))
-    .post("/contact", ...[].concat(m3.POST))
-    .get("/default", ...[].concat(m4.default))
-    .get("/", ...[].concat(m5.GET))
-    .get("/protected/dashboard", ...[].concat(m6.GET))
-    .get("/users/create", ...[].concat(m7.GET))
-    .get("/optional/:id?", ...[].concat(m8.GET))
-    .get("/users/:id", ...[].concat(m9.GET))
-    .get("/files/*", ...[].concat(m10.GET));
+	.use("/*", ...[].concat(m0.default))
+	.use("/protected/*", ...[].concat(m1.default))
+	.get("/about", ...[].concat(m2.GET))
+	.get("/contact", ...[].concat(m3.GET))
+	.post("/contact", ...[].concat(m3.POST))
+	.get("/default", ...[].concat(m4.default))
+	.get("/", ...[].concat(m5.GET))
+	.get("/protected/dashboard", ...[].concat(m6.GET))
+	.get("/users/create", ...[].concat(m7.GET))
+	.get("/optional/:id?", ...[].concat(m8.GET))
+	.get("/users/:id", ...[].concat(m9.GET))
+	.get("/files/*", ...[].concat(m10.GET));
 
 export type RpcType = typeof app;
