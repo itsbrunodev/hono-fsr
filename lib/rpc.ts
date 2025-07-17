@@ -62,7 +62,7 @@ import { Hono } from "hono";
 ${imports.join("\n")}
 
 const app = new Hono()
-    ${chain.join("\n    ")};
+	${chain.join("\n  ")};
 
 export type RpcType = typeof app;
 `;
