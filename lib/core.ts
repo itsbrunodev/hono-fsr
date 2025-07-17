@@ -4,6 +4,7 @@ import { pathToFileURL } from "node:url";
 import chalk from "chalk";
 import type { Hono } from "hono";
 import { logger } from "./logger";
+import { generateRpcTypes } from "./rpc";
 import {
 	type DiscoveredRoute,
 	type ErrorResult,
@@ -182,6 +183,46 @@ export async function createRouter(
 	});
 
 	await Promise.allSettled(registrationPromises);
+
+	try {
+		const rpcTypesContent = await generateRpcTypes(sortedRoutes, root);
+		const typesFilePath = path.join(
+			path.resolve(process.cwd(), root),
+			"rpc.d.ts",
+		);
+
+		let existingContent = "";
+
+		try {
+			existingContent = await fs.readFile(typesFilePath, "utf-8");
+		} catch (err) {
+			if (err instanceof Error && "code" in err && err.code !== "ENOENT") {
+				logger.error("Failed to read existing RPC types file.");
+				console.error(err);
+			}
+		}
+
+		// only write the file if the content has changed
+		if (existingContent !== rpcTypesContent) {
+			await fs.writeFile(typesFilePath, rpcTypesContent);
+
+			if (debug) {
+				logger.debug(`Generated or updated RPC types file at ${typesFilePath}`);
+			}
+		} else {
+			if (debug) {
+				logger.debug("RPC types are already up to date.");
+			}
+		}
+	} catch (error) {
+		logger.error("Failed to generate RPC types file.");
+
+		if (error instanceof Error) {
+			console.error(error.stack);
+		} else {
+			console.error(error);
+		}
+	}
 
 	const elapsed = (performance.now() - start).toFixed(2);
 
