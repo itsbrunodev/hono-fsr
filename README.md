@@ -1,10 +1,10 @@
 # hono-fsr
 
-File-system router for the [Hono](https://hono.dev/) web framework.
+File system router for the [Hono](https://hono.dev/) web framework.
 
 ## Features
 
-- **Zero-Overhead**: All file-system operations happen once at initialization. At runtime, the router adds no performance overhead on top of Hono's highly optimized core.
+- **Zero-Overhead**: All file system operations happen once at initialization. At runtime, the router adds no performance overhead on top of Hono's highly optimized core.
 - **Convention-based Routing**: Intuitive file and folder naming conventions for static, dynamic, catch-all, and optional routes.
 - **Advanced Features**: Built-in support for route groups, nested middleware, path prefixing (basePath), and trailing slash control.
 
@@ -141,7 +141,7 @@ createRouter(app, {
 
 ## Alternatives
 
-For projects that require tight integration between a frontend (React) and backend, or a full-stack experience, consider using [honox](https://github.com/honojs/honox). It is a full meta-framework that also supports file-system routing and server-side rendering with React.
+For projects that require tight integration between a frontend (React) and backend, or a full-stack experience, consider using [honox](https://github.com/honojs/honox). It is a full meta-framework that also supports file system routing and server-side rendering with React.
 
 hono-fsr is a powerful and lean server-side routing layer. Its sole focus is to provide a robust, convention-driven foundation for organizing your application's endpoints. It remains completely unopinionated about what your handlers return, be it JSON for an API, or HTML from Hono's built-in JSX renderer for a server-rendered site.
 
