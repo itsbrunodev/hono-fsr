@@ -36,6 +36,12 @@ export interface HonoFsrOptions {
 	 * @default "preserve"
 	 */
 	trailingSlash?: "always" | "never" | "preserve";
+	/**
+	 * Enable generating an `rpc.d.ts` file for the routes, allows sharing of the API specifications between the server and the client.
+	 * @link https://hono.dev/docs/guides
+	 * @default false
+	 */
+	rpc?: boolean;
 }
 
 export interface DiscoveredRoute {

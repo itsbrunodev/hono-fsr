@@ -121,12 +121,13 @@ hono-fsr uses a simple and powerful file-naming convention.
 
 The `createRouter` function accepts an options object to customize its behavior.
 
-| Option          | Description                                         | Type                                | Default      |
-| --------------- | --------------------------------------------------- | ----------------------------------- | ------------ |
-| `root`          | The root directory of the routes.                   | `string`                            | **Required** |
-| `debug`         | Enable verbose logging for debugging.               | `boolean`                           | `false`      |
-| `basePath`      | A path prefix for all routes.                       | `string`                            | `/`          |
-| `trailingSlash` | Defines the trailing slash behavior for all routes. | `"always" \| "never" \| "preserve"` | `"preserve"` |
+| Option          | Description                                                                 | Type                                | Default      |
+| --------------- | --------------------------------------------------------------------------- | ----------------------------------- | ------------ |
+| `root`          | The root directory of the routes.                                           | `string`                            | **Required** |
+| `debug`         | Enable verbose logging for debugging.                                       | `boolean`                           | `false`      |
+| `rpc`           | Allows sharing of the API specifications between the server and the client. | `boolean`                           | `false`      |
+| `basePath`      | A path prefix for all routes.                                               | `string`                            | `/`          |
+| `trailingSlash` | Defines the trailing slash behavior for all routes.                         | `"always" \| "never" \| "preserve"` | `"preserve"` |
 
 ### Example Configuration
 
@@ -134,6 +135,7 @@ The `createRouter` function accepts an options object to customize its behavior.
 createRouter(app, {
   root: path.join(__dirname, "routes"),
   debug: process.env.NODE_ENV !== "production",
+  rpc: true,
   basePath: "/api/v1",
   trailingSlash: "never",
 });
