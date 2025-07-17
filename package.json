@@ -1,6 +1,6 @@
 {
 	"name": "hono-fsr",
-	"description": "File-system router for the Hono web framework.",
+	"description": "File system router for the Hono web framework.",
 	"keywords": [
 		"hono",
 		"router",
@@ -15,7 +15,7 @@
 	],
 	"license": "MIT",
 	"type": "module",
-	"version": "1.0.1",
+	"version": "1.1.0",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"files": [
