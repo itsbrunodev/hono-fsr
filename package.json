@@ -37,7 +37,6 @@
 		"prepare": "husky"
 	},
 	"dependencies": {
-		"chalk": "^5.4.1",
 		"hono": "^4.8.5"
 	},
 	"devDependencies": {

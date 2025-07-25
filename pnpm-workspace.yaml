@@ -1,5 +1,3 @@
 onlyBuiltDependencies:
   - esbuild
   - unrs-resolver
-overrides:
-  hono-fsr: link:../../AppData/Local/pnpm/global/5/node_modules/hono-fsr
