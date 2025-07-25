@@ -18,6 +18,11 @@ export async function generateRpcTypes(
 
 	for (let i = 0; i < routes.length; i++) {
 		const route = routes[i];
+
+		if (route.type === "middleware") {
+			continue;
+		}
+
 		const module = modules[i];
 		const moduleAlias = `m${counter++}`;
 
@@ -28,30 +33,28 @@ export async function generateRpcTypes(
 
 		imports.push(`import * as ${moduleAlias} from "./${relativePath}";`);
 
-		if (route.type === "middleware") {
-			if (module.default) {
-				const middlewarePath =
-					route.urlPath === "/" ? "/*" : `${route.urlPath}/*`;
+		for (const method of VALID_METHODS) {
+			const handler = module[method];
+			if (handler) {
+				// check if the handler is an array (created with createRoute)
+				// if so, spread it to preserve types, otherwise, use it directly
+				const handlerString = Array.isArray(handler)
+					? `...${moduleAlias}.${method}`
+					: `${moduleAlias}.${method}`;
+
 				chain.push(
-					`.use("${middlewarePath}", ...[].concat(${moduleAlias}.default))`,
+					`.${method.toLowerCase()}("${route.urlPath}", ${handlerString})`,
 				);
 			}
-		} else {
-			// handler
-			for (const method of VALID_METHODS) {
-				if (module[method]) {
-					chain.push(
-						`.${method.toLowerCase()}("${
-							route.urlPath
-						}", ...[].concat(${moduleAlias}.${method}))`,
-					);
-				}
-			}
-			if (!module.GET && module.default) {
-				chain.push(
-					`.get("${route.urlPath}", ...[].concat(${moduleAlias}.default))`,
-				);
-			}
+		}
+
+		// handle default export as a GET request if no explicit GET is defined
+		if (!module.GET && module.default) {
+			const handler = module.default;
+			const handlerString = Array.isArray(handler)
+				? `...${moduleAlias}.default`
+				: `${moduleAlias}.default`;
+			chain.push(`.get("${route.urlPath}", ${handlerString})`);
 		}
 	}
 
