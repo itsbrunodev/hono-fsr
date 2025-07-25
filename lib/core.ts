@@ -1,9 +1,8 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import chalk from "chalk";
 import type { Hono } from "hono";
-import { logger } from "./logger";
+import { dim, logger } from "./logger";
 import { generateRpcTypes } from "./rpc";
 import {
 	type DiscoveredRoute,
@@ -82,7 +81,7 @@ function performRegistration(
 			app.use(middlewarePath, handler);
 
 			if (debug) {
-				logger.debug(`Registered ${chalk.dim("MIDDLEWARE")} ${middlewarePath}`);
+				logger.debug(`Registered ${dim("MIDDLEWARE")} ${middlewarePath}`);
 			}
 		} else {
 			logger.warn(`No default export found in ${route.filePath}.`);
@@ -107,7 +106,7 @@ function performRegistration(
 				app.on(method, finalRoutePath, ...handlers);
 
 				if (debug) {
-					logger.debug(`Registered ${chalk.dim(method)} ${finalRoutePath}`);
+					logger.debug(`Registered ${dim(method)} ${finalRoutePath}`);
 				}
 
 				registeredMethod = true;
