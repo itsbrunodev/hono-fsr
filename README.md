@@ -1,22 +1,22 @@
 # hono-fsr
 
-File system router for the [Hono](https://hono.dev/) web framework.
+File system router for the [Hono](https://hono.dev) web framework.
 
 ## Features
 
-- **Zero-Overhead**: All file system operations happen once at initialization. At runtime, the router adds no performance overhead on top of Hono's highly optimized core.
-- **Convention-based Routing**: Intuitive file and folder naming conventions for static, dynamic, catch-all, and optional routes.
-- **Advanced Features**: Built-in support for route groups, nested middleware, path prefixing (basePath), and trailing slash control.
+- **Zero-overhead**: All file system operations happen once at initialization.
+- **Convention-based**: Intuitive file and folder naming conventions.
+- **Bundlers**: Support for Vite, Esbuild, and more.
 
 ## Installation
 
 ```bash
 # npm
 npm install hono-fsr
-# yarn
-yarn add hono-fsr
 # pnpm
 pnpm add hono-fsr
+# yarn
+yarn add hono-fsr
 # bun
 bun add hono-fsr
 ```
