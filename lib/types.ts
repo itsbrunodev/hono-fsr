@@ -12,12 +12,26 @@ export const VALID_METHODS = [
 export type HttpMethod = (typeof VALID_METHODS)[number];
 export type HonoMethod = Lowercase<HttpMethod>;
 
+// biome-ignore lint/suspicious/noExplicitAny: This is a dynamic module import
+export type RouteModuleType = Record<string, any>;
+
+export interface ManifestRoute extends DiscoveredRoute {
+	module: RouteModuleType;
+}
+
+export type Manifest = ManifestRoute[];
+
 export interface HonoFsrOptions {
 	/**
 	 * The root directory of the routes.
 	 * @example path.join(__dirname, "routes")
 	 */
-	root: string;
+	root?: string;
+	/**
+	 * A pre-generated manifest for bundler-friendly routing.
+	 * If provided, `root` will be ignored.
+	 */
+	manifest?: Manifest;
 	/**
 	 * Enable verbose logging for debugging.
 	 * @default false
