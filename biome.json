@@ -7,7 +7,7 @@
 	},
 	"files": {
 		"ignoreUnknown": false,
-		"includes": ["lib/**/*.ts", "test/**/*.ts"]
+		"includes": ["lib/**/*.ts", "test/**/*.ts", "bin/**/*.ts"]
 	},
 	"formatter": {
 		"enabled": true,
