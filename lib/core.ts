@@ -129,17 +129,21 @@ async function registerRoutesFromFileSystem(
 				/* @vite-ignore */ pathToFileURL(route.filePath).href
 			);
 			performRegistration(app, route, module, basePath, trailingSlash, debug);
+
 			return { status: "success", route } as SuccessResult;
 		} catch (error) {
 			logger.error(`Failed to import or register route at ${route.filePath}`);
+
 			if (error instanceof Error) console.error(error.stack);
 			else console.error(error);
+
 			return { status: "error", route, error } as ErrorResult;
 		}
 	});
 
 	await Promise.allSettled(registrationPromises);
-	return sortedRoutes; // Return for RPC generation
+
+	return sortedRoutes;
 }
 
 /**
@@ -178,7 +182,7 @@ export async function createRouter<T extends Hono>(
 	let resolvedRoutes: (DiscoveredRoute | ManifestRoute)[] = [];
 
 	if (manifest) {
-		// Bundler-friendly path
+		// bundler
 		await registerRoutesFromManifest(
 			app,
 			manifest,
@@ -186,9 +190,10 @@ export async function createRouter<T extends Hono>(
 			trailingSlash,
 			debug,
 		);
+
 		resolvedRoutes = manifest;
 	} else if (root) {
-		// Original file-system path
+		// file system
 		resolvedRoutes = await registerRoutesFromFileSystem(
 			app,
 			root,
