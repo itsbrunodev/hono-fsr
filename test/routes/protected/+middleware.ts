@@ -1,4 +1,4 @@
-import { createMiddleware } from "hono/factory";
+import { createMiddleware } from "@/index";
 
 export default createMiddleware(async (c, next) => {
 	if (c.req.header("X-API-Key") !== "secret") {
