@@ -42,7 +42,7 @@
 	},
 	"dependencies": {
 		"chokidar": "^4.0.3",
-		"hono": "^4.8.9"
+		"hono": "^4"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.1.1",
@@ -55,8 +55,7 @@
 		"ts-jest": "^29.4.0",
 		"ts-node": "^10.9.2",
 		"tsc-alias": "^1.8.16",
-		"tsx": "^4.20.3",
-		"vite": "^7.0.4"
+		"tsx": "^4.20.3"
 	},
 	"peerDependencies": {
 		"hono": "^4"
