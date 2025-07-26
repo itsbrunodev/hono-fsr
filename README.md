@@ -124,10 +124,13 @@ The `createRouter` function accepts an options object to customize its behavior.
 | Option          | Description                                                                 | Type                                | Default      |
 | --------------- | --------------------------------------------------------------------------- | ----------------------------------- | ------------ |
 | `root`          | The root directory of the routes.                                           | `string`                            | **Required** |
+| `manifest`      | The path to the generated manifest file.                                    | `Manifest`                          | `undefined`  |
 | `debug`         | Enable verbose logging for debugging.                                       | `boolean`                           | `false`      |
 | `rpc`           | Allows sharing of the API specifications between the server and the client. | `boolean`                           | `false`      |
 | `basePath`      | A path prefix for all routes.                                               | `string`                            | `/`          |
 | `trailingSlash` | Defines the trailing slash behavior for all routes.                         | `"always" \| "never" \| "preserve"` | `"preserve"` |
+
+> Read more about how to use the manifest option in the [Bundlers](https://github.com/itsbrunodev/hono-fsr/wiki/Bundlers) section of the Wiki.
 
 ### Example Configuration
 
