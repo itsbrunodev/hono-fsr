@@ -16,21 +16,21 @@ export function dim(text: string): string {
 }
 
 export const logger = {
-	info(message: string): void {
+	info(...message: string[]): void {
 		console.log(`${prefix} ${colors.blue}info${colors.reset}: ${message}`);
 	},
-	warn(message: string): void {
+	warn(...message: string[]): void {
 		console.warn(`${prefix} ${colors.yellow}warn${colors.reset}: ${message}`);
 	},
-	error(message: string): void {
+	error(...message: string[]): void {
 		console.error(`${prefix} ${colors.red}error${colors.reset}: ${message}`);
 	},
-	debug(message: string): void {
+	debug(...message: string[]): void {
 		console.debug(
 			`${prefix} ${colors.magenta}debug${colors.reset}: ${message}`,
 		);
 	},
-	log(message: string): void {
+	log(...message: string[]): void {
 		console.log(`${prefix} ${message}`);
 	},
 };
