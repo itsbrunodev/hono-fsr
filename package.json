@@ -11,7 +11,9 @@
 		"framework",
 		"server",
 		"backend",
-		"api"
+		"api",
+		"bundler",
+		"vite"
 	],
 	"license": "MIT",
 	"type": "module",
