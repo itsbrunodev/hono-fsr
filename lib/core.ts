@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import type { Hono } from "hono";
+import { discoverAndSortRoutes } from "./discovery";
 import { dim, logger } from "./logger";
 import { generateRpcTypes } from "./rpc";
 import {
@@ -9,56 +10,12 @@ import {
 	type ErrorResult,
 	type HonoFsrOptions,
 	type HttpMethod,
+	type Manifest,
+	type ManifestRoute,
 	type SuccessResult,
 	VALID_METHODS,
 } from "./types";
-import { joinUrl, transformPathToRoute } from "./utils";
-
-async function findFilesRecursively(dir: string): Promise<string[]> {
-	try {
-		const entries = await fs.readdir(dir, { withFileTypes: true });
-
-		const files = await Promise.all(
-			entries.map((entry) => {
-				const fullPath = path.join(dir, entry.name);
-				const normalizedPath = fullPath.replace(/\\/g, "/");
-
-				return entry.isDirectory()
-					? findFilesRecursively(normalizedPath)
-					: normalizedPath;
-			}),
-		);
-
-		return files.flat();
-	} catch (err) {
-		if (err instanceof Error && "code" in err && err.code === "ENOENT") {
-			return [];
-		}
-
-		throw err;
-	}
-}
-
-async function discoverAndSortRoutes(root: string): Promise<DiscoveredRoute[]> {
-	const rootDir = path.resolve(process.cwd(), root);
-
-	const files = await findFilesRecursively(rootDir);
-
-	const routes: DiscoveredRoute[] = files
-		.map((file) => transformPathToRoute(rootDir, file))
-		.filter((route): route is DiscoveredRoute => route !== null);
-
-	routes.sort((a, b) => {
-		if (a.type === "middleware" && b.type !== "middleware") return -1;
-		if (a.type !== "middleware" && b.type === "middleware") return 1;
-		if (a.type === "middleware" && b.type === "middleware") {
-			return a.urlPath.length - b.urlPath.length;
-		}
-		return a.precedence - b.precedence;
-	});
-
-	return routes;
-}
+import { joinUrl } from "./utils";
 
 function performRegistration(
 	app: Hono,
@@ -129,6 +86,62 @@ function performRegistration(
 	}
 }
 
+async function registerRoutesFromManifest(
+	app: Hono,
+	manifest: Manifest,
+	basePath: string,
+	trailingSlash: HonoFsrOptions["trailingSlash"],
+	debug?: boolean,
+) {
+	if (debug) {
+		logger.debug("Registering routes from pre-generated manifest...");
+	}
+
+	for (const route of manifest) {
+		performRegistration(
+			app,
+			route,
+			route.module,
+			basePath,
+			trailingSlash,
+			debug,
+		);
+	}
+}
+
+async function registerRoutesFromFileSystem(
+	app: Hono,
+	root: string,
+	basePath: string,
+	trailingSlash: HonoFsrOptions["trailingSlash"],
+	debug?: boolean,
+) {
+	if (debug) {
+		logger.debug("Discovering routes from file system...");
+		logger.debug(`Root directory set to ${root}`);
+	}
+
+	const sortedRoutes = await discoverAndSortRoutes(root);
+
+	const registrationPromises = sortedRoutes.map(async (route) => {
+		try {
+			const module = await import(
+				/* @vite-ignore */ pathToFileURL(route.filePath).href
+			);
+			performRegistration(app, route, module, basePath, trailingSlash, debug);
+			return { status: "success", route } as SuccessResult;
+		} catch (error) {
+			logger.error(`Failed to import or register route at ${route.filePath}`);
+			if (error instanceof Error) console.error(error.stack);
+			else console.error(error);
+			return { status: "error", route, error } as ErrorResult;
+		}
+	});
+
+	await Promise.allSettled(registrationPromises);
+	return sortedRoutes; // Return for RPC generation
+}
+
 /**
  * Creates a file-system router from a directory of routes and registers them to the provided Hono app.
  * @param app Hono
@@ -143,14 +156,15 @@ function performRegistration(
  *   root: path.join(__dirname, "routes")
  * });
  */
-export async function createRouter(
-	app: Hono,
+export async function createRouter<T extends Hono>(
+	app: T,
 	options: HonoFsrOptions,
 ): Promise<void> {
 	const start = performance.now();
 
 	const {
 		root,
+		manifest,
 		debug = false,
 		basePath = "/",
 		trailingSlash = "preserve",
@@ -161,74 +175,80 @@ export async function createRouter(
 		logger.debug("Initializing routes...");
 	}
 
-	if (debug) {
-		logger.debug(`Root directory set to ${root}`);
+	let resolvedRoutes: (DiscoveredRoute | ManifestRoute)[] = [];
+
+	if (manifest) {
+		// Bundler-friendly path
+		await registerRoutesFromManifest(
+			app,
+			manifest,
+			basePath,
+			trailingSlash,
+			debug,
+		);
+		resolvedRoutes = manifest;
+	} else if (root) {
+		// Original file-system path
+		resolvedRoutes = await registerRoutesFromFileSystem(
+			app,
+			root,
+			basePath,
+			trailingSlash,
+			debug,
+		);
+	} else {
+		throw new Error('Either "root" or "manifest" option must be provided.');
 	}
 
-	const sortedRoutes = await discoverAndSortRoutes(root);
-
-	const registrationPromises = sortedRoutes.map(async (route) => {
-		try {
-			const module = await import(pathToFileURL(route.filePath).href);
-
-			performRegistration(app, route, module, basePath, trailingSlash, debug);
-
-			return { status: "success", route } as SuccessResult;
-		} catch (error) {
-			logger.error(`Failed to import or register route at ${route.filePath}`);
-
-			if (error instanceof Error) {
-				console.error(error.stack);
-			} else {
-				console.error(error);
-			}
-
-			return { status: "error", route, error } as ErrorResult;
-		}
-	});
-
-	await Promise.allSettled(registrationPromises);
-
 	if (rpc) {
-		try {
-			const rpcTypesContent = await generateRpcTypes(sortedRoutes, root);
-			const typesFilePath = path.join(
-				path.resolve(process.cwd(), root),
-				"rpc.d.ts",
+		if (!root) {
+			logger.warn(
+				'Cannot generate RPC types without a "root" directory specified.',
 			);
-
-			let existingContent = "";
-
+		} else {
 			try {
-				existingContent = await fs.readFile(typesFilePath, "utf-8");
-			} catch (err) {
-				if (err instanceof Error && "code" in err && err.code !== "ENOENT") {
-					logger.error("Failed to read existing RPC types file.");
-					console.error(err);
-				}
-			}
+				const rpcTypesContent = await generateRpcTypes(
+					resolvedRoutes as DiscoveredRoute[],
+					root,
+				);
+				const typesFilePath = path.join(
+					path.resolve(process.cwd(), root),
+					"_rpc.d.ts",
+				);
 
-			// only write the file if the content has changed
-			if (existingContent !== rpcTypesContent) {
-				await fs.writeFile(typesFilePath, rpcTypesContent);
+				let existingContent = "";
 
-				if (debug) {
-					logger.debug(
-						`Generated or updated RPC types file at ${typesFilePath}`,
-					);
+				try {
+					existingContent = await fs.readFile(typesFilePath, "utf-8");
+				} catch (err) {
+					if (err instanceof Error && "code" in err && err.code !== "ENOENT") {
+						logger.error("Failed to read existing RPC types file.");
+						console.error(err);
+					}
 				}
-			} else {
-				if (debug) {
-					logger.debug("RPC types are already up to date.");
-				}
-			}
-		} catch (error) {
-			logger.error("Failed to generate RPC types file.");
 
-			if (error instanceof Error) {
-				console.error(error.stack);
-			} else {
-				console.error(error);
+				// only write the file if the content has changed
+				if (existingContent !== rpcTypesContent) {
+					await fs.writeFile(typesFilePath, rpcTypesContent);
+
+					if (debug) {
+						logger.debug(
+							`Generated or updated RPC types file at ${typesFilePath}`,
+						);
+					}
+				} else {
+					if (debug) {
+						logger.debug("RPC types are already up to date.");
+					}
+				}
+			} catch (error) {
+				logger.error("Failed to generate RPC types file.");
+
+				if (error instanceof Error) {
+					console.error(error.stack);
+				} else {
+					console.error(error);
+				}
 			}
 		}
 	}
@@ -236,6 +256,6 @@ export async function createRouter(
 	const elapsed = (performance.now() - start).toFixed(2);
 
 	if (debug) {
-		logger.debug(`Registered ${sortedRoutes.length} routes in ${elapsed}ms.`);
+		logger.debug(`Registered ${resolvedRoutes.length} routes in ${elapsed}ms.`);
 	}
 }
