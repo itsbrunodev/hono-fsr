@@ -18,8 +18,12 @@
 	"version": "1.1.2",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
+	"bin": {
+		"hono-fsr": "./dist/bin/hono-fsr.js"
+	},
 	"files": [
 		"dist/lib",
+		"dist/bin",
 		"dist/index.js",
 		"dist/index.d.ts"
 	],
@@ -37,7 +41,8 @@
 		"prepare": "husky"
 	},
 	"dependencies": {
-		"hono": "^4.8.5"
+		"chokidar": "^4.0.3",
+		"hono": "^4.8.9"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.1.1",
@@ -52,5 +57,8 @@
 		"tsc-alias": "^1.8.16",
 		"tsx": "^4.20.3",
 		"vite": "^7.0.4"
+	},
+	"peerDependencies": {
+		"hono": "^4"
 	}
 }
