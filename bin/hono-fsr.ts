@@ -11,7 +11,12 @@ import { dim, logger } from "../lib/logger";
  */
 function parseArgs() {
 	const args = process.argv.slice(2);
-	const options: { root?: string; output?: string; watch?: boolean } = {};
+	const options: {
+		root?: string;
+		output?: string;
+		watch?: boolean;
+		debug?: boolean;
+	} = {};
 
 	for (let i = 0; i < args.length; i++) {
 		const arg = args[i];
@@ -32,12 +37,16 @@ function parseArgs() {
 			case "-w":
 				options.watch = true;
 				break;
+			case "--debug":
+			case "-d":
+				options.debug = true;
+				break;
 		}
 	}
 	return options;
 }
 
-async function generateManifest(root: string, output: string) {
+async function generateManifest(root: string, output: string, debug = false) {
 	logger.log(`Starting route discovery in ${dim(root)}.`);
 
 	const discoveredRoutes = await discoverAndSortRoutes(root);
@@ -56,7 +65,9 @@ export const manifest: Manifest = [];
 		await fs.mkdir(outputDir, { recursive: true });
 		await fs.writeFile(output, emptyManifestContent);
 
-		logger.log(`✅ Empty manifest generated at ${dim(output)}.`);
+		if (debug) {
+			logger.log(`Generated empty manifest at ${dim(output)}.`);
+		}
 
 		return;
 	}
@@ -110,13 +121,15 @@ export const manifest: Manifest = [
 	await fs.mkdir(outputDir, { recursive: true });
 	await fs.writeFile(output, manifestContent);
 
-	logger.log(`Manifest generated with ${discoveredRoutes.length} routes.`);
-	logger.log(`Manifest saved at ${dim(output)}.`);
+	if (debug) {
+		logger.log(`Manifest generated with ${discoveredRoutes.length} routes.`);
+		logger.log(`Manifest saved at ${dim(output)}.`);
+	}
 }
 
 async function main() {
 	const options = parseArgs();
-	const { root, watch } = options;
+	const { root, watch, debug } = options;
 
 	if (!root) {
 		logger.error("The --root (-r) option is required.");
@@ -136,7 +149,7 @@ async function main() {
 		logger.log("Watch mode enabled.");
 
 		// initial generation before starting to watch
-		await generateManifest(root, output);
+		await generateManifest(root, output, debug);
 
 		const watcher = chokidar.watch(root, {
 			persistent: true,
