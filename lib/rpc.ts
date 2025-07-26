@@ -13,7 +13,9 @@ export async function generateRpcTypes(
 	const rootPath = path.resolve(process.cwd(), rootDir);
 
 	const modules = await Promise.all(
-		routes.map((route) => import(pathToFileURL(route.filePath).href)),
+		routes.map(
+			(route) => import(/* @vite-ignore */ pathToFileURL(route.filePath).href),
+		),
 	);
 
 	for (let i = 0; i < routes.length; i++) {
@@ -64,7 +66,7 @@ import { Hono } from "hono";
 
 ${imports.join("\n")}
 
-const app = new Hono()
+export const app = new Hono()
 	${chain.join("\n  ")};
 
 export type RpcType = typeof app;
